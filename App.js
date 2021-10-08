@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -63,18 +64,29 @@ export default function App() {
   };
 
   const deleteToDo = (key) => {
-    Alert.alert("Delete To Do", "Are you sure?", [
-      { text: "Cancel" },
-      {
-        text: "Confirm",
-        onPress: () => {
-          const newToDos = { ...toDos };
-          delete newToDos[key];
-          setToDos(newToDos);
-          saveToDos(newToDos);
+    // if run on web, use confirm api instead of Alert
+    if (Platform.OS === "web") {
+      const ok = confirm("Do you want to delete this To Do?");
+      if (ok) {
+        const newToDos = { ...toDos };
+        delete newToDos[key];
+        setToDos(newToDos);
+        saveToDos(newToDos);
+      }
+    } else {
+      Alert.alert("Delete To Do", "Are you sure?", [
+        { text: "Cancel" },
+        {
+          text: "Confirm",
+          onPress: () => {
+            const newToDos = { ...toDos };
+            delete newToDos[key];
+            setToDos(newToDos);
+            saveToDos(newToDos);
+          },
         },
-      },
-    ]);
+      ]);
+    }
   };
 
   return (
@@ -83,7 +95,11 @@ export default function App() {
       <View style={styles.header}>
         <Pressable onPress={work}>
           <Text
-            style={{ ...styles.btnText, color: working ? "white" : theme.grey }}
+            style={{
+              fontSize: 40,
+              fontWeight: "600",
+              color: working ? "white" : theme.grey,
+            }}
           >
             Work
           </Text>
@@ -92,7 +108,8 @@ export default function App() {
         <Pressable onPress={travel}>
           <Text
             style={{
-              ...styles.btnText,
+              fontSize: 40,
+              fontWeight: "600",
               color: !working ? "white" : theme.grey,
             }}
           >
@@ -136,10 +153,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 100,
-  },
-  btnText: {
-    fontSize: 40,
-    fontWeight: "600",
   },
   input: {
     backgroundColor: "white",
