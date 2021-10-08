@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
   View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Fontisto } from "@expo/vector-icons";
 import { theme } from "./colors";
 
 const STORAGE_KEY = "@toDos";
@@ -58,6 +60,21 @@ export default function App() {
     setText("");
   };
 
+  const deleteToDo = (key) => {
+    Alert.alert("Delete To Do", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "Confirm",
+        onPress: () => {
+          const newToDos = { ...toDos };
+          delete newToDos[key];
+          setToDos(newToDos);
+          saveToDos(newToDos);
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -96,6 +113,9 @@ export default function App() {
           toDos[key].working === working ? (
             <View key={key} style={styles.toDo}>
               <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <Pressable onPress={() => deleteToDo(key)}>
+                <Fontisto name="trash" size={16} color="white" />
+              </Pressable>
             </View>
           ) : null
         )}
@@ -133,6 +153,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   toDoText: {
     color: "white",
